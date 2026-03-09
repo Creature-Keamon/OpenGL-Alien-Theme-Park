@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8...3.5)
 
 project(Assignment1)
 
-add_executable(Scene.out Scene.cpp)
+add_executable(Scene.out src/Scene.cpp)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
