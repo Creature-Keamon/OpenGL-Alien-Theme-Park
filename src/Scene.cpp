@@ -1,4 +1,5 @@
 #include <GL/freeglut.h>
+#include <GL/freeglut_ext.h>
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <cmath> 
@@ -8,6 +9,8 @@
 float angle = 0, look_x, look_z = -1, eye_x, eye_z;
 int turnDirection = 0;
 int moveDirection = 0;
+int speedUp = 1;
+int fly = 0;
 
 void drawFloor() {
 	bool flag = false;
@@ -34,28 +37,49 @@ void special(int key, int x, int y) {
 	
 	if (key == GLUT_KEY_DOWN) moveDirection = -1;	
 	else if (key == GLUT_KEY_UP) moveDirection = 1;
+
+	if (key == GLUT_KEY_CTRL_L || key == GLUT_KEY_CTRL_R) speedUp = 10;
+
+	if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R) fly = -1;
+}
+
+void keyboard(unsigned char key, int x, int y) {
+	if (key == ' ') {
+		fly = 1;
+	}
+}
+
+void keyboardUp(unsigned char key, int x, int y) {
+	if (key == ' ') {
+		fly = 0;
+	}
 }
 
 void normal(int key, int x, int y) {
 	if (key == GLUT_KEY_LEFT or key == GLUT_KEY_RIGHT) turnDirection = 0;
-	if (key == GLUT_KEY_UP or key == GLUT_KEY_DOWN) turnDirection = 0;
+	if (key == GLUT_KEY_UP or key == GLUT_KEY_DOWN) moveDirection = 0;
+	if (key == GLUT_KEY_CTRL_L || key == GLUT_KEY_CTRL_R) speedUp = 1;
 }
 
 void moveCamera() {
 	if (turnDirection == -1) {
-		angle -=0.1;
+		angle -=0.02;
 	}
 	else if (turnDirection == 1) {
-		angle +=0.1;
+		angle +=0.02;
 	}
 	if (moveDirection == 1) {
-		eye_x += 0.1*sin(angle);
-		eye_z -= 0.1*cos(angle);
+		eye_x += speedUp*0.1*sin(angle);
+		eye_z -= speedUp*0.1*cos(angle);
 	}
 	else if (moveDirection == -1) {
-		eye_x -= 0.1*sin(angle);
-		eye_z += 0.1*cos(angle);
+		eye_x -= speedUp*0.1*sin(angle);
+		eye_z += speedUp*0.1*cos(angle);
 	}
+	if (fly == 1) {
+		
+	}
+
 	look_x = eye_x + 100*sin(angle);
 	look_z = eye_z - 100*cos(angle);
 	glutPostRedisplay();
@@ -99,7 +123,10 @@ int main(int argc, char** argv) {
 	glutCreateWindow("Super Duper Alien Theme Park!");
 	initialise();
 
+
 	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialFunc(special); 
 	glutSpecialUpFunc(normal);
 	glutMainLoop();
