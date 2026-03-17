@@ -2,5 +2,6 @@
 #define ALIEN_H
 
 void drawAlien();
+void alienHead();
 
 #endif
