@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8...3.5)
 
 project(COSC363_Assignment-1)
 
-add_executable(Scene.out src/Scene.cpp src/Alien.cpp)
+add_executable(Scene.out src/Scene.cpp)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)

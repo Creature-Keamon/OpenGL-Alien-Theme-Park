@@ -3,7 +3,6 @@
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <cmath> 
-#include "Alien.h"
 
 //Movement funcs------------------------------------------------------------
 float angle = 0, look_x, look_z = -1, eye_x, eye_z, height = 3;
@@ -11,6 +10,7 @@ int turnDirection = 0;
 int moveDirection = 0;
 int speedUp = 1;
 int fly = 0;
+float headBounce = 0;
 
 void special(int key, int x, int y) {
 	if (key == GLUT_KEY_LEFT) turnDirection = -1;
@@ -70,7 +70,80 @@ void moveCamera() {
 	glutPostRedisplay();
 }
 
-//-------------------------------------------------------------------------
+//objects to draw-------------------------------------------------------------
+
+void alienHead() {
+    // teeth
+    glPushMatrix();
+    for (int i = 0; i < 7; i ++) {
+        glPushMatrix();
+        glTranslatef(-0.6 + (i*0.2), 0, 0.8);
+        glRotatef(90, 1, 0, 0);
+        glutSolidCone(0.2, 1, 10, 10);
+        glPopMatrix();
+    }
+
+    // eyes
+    for (int  i = -1; i < 2; i +=2) {
+        glPushMatrix();
+        glColor3f(1, 1, 1);
+        glTranslatef(i*0.5, 0.6, 0.5);
+        glutSolidSphere(0.3, 8, 8);
+        glPopMatrix();
+        
+        glPushMatrix();
+        glColor3f( 0,0,0);
+        glTranslatef(i*0.4, 0.5, 0.75);
+        glutSolidSphere(0.1, 6, 6);
+        glPopMatrix();
+    }
+    
+    //jaw
+    glColor3f(0,0,1);
+    glPushMatrix();
+    glScalef(1,0.5,1);
+    glutSolidSphere(1, 10, 10);
+    glPopMatrix();
+
+    glPushMatrix();
+    glScalef(1,0.5,1);
+    glTranslatef(0,-2,0);
+    glutSolidSphere(1, 10, 10);
+    glPopMatrix();
+    glPopMatrix();
+}
+
+void drawAlien(float height) {
+    glPushMatrix();
+    glTranslatef(0, height, 0);
+    alienHead();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0, -1.5);
+    glScalef(0.7, 1.3, 1);
+    glutSolidSphere(2, 10, 10);
+    glPopMatrix();
+}
+
+
+
+void clockTimer(int value)
+{
+	float heightChange = 0.1;
+	if (headBounce >= 1)
+	{
+		heightChange = -0.1;
+	} 
+	else if (headBounce <= -1)
+	{
+		heightChange = 0.1;
+	}
+	headBounce += heightChange;
+	glutPostRedisplay();
+	glutTimerFunc(50, clockTimer, 0);
+}
+
 
 void drawFloor() {
 	bool flag = false;
@@ -112,9 +185,10 @@ void display() {
 	drawFloor();
 	glPushMatrix();
 	glTranslatef(0, 2, 0);
-	drawAlien();
+	drawAlien(headBounce);
 	glPopMatrix();
 	glutSwapBuffers();
+	
 }
 
 void initialise()
@@ -135,8 +209,8 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Super Duper Alien Theme Park!");
 	initialise();
-
 	
+	//glutTimerFunc(50,clockTimer,0);
 	glutDisplayFunc(display);
 
 	//handle movement controls
@@ -144,7 +218,5 @@ int main(int argc, char** argv) {
 	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialFunc(special); 
 	glutSpecialUpFunc(normal);
-	
-	glutMainLoop();
 	return 0;
 }
