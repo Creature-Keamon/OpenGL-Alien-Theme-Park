@@ -5,12 +5,13 @@
 #include <cmath> 
 
 //Movement funcs------------------------------------------------------------
-float angle = 0, look_x, look_z = -1, eye_x, eye_z, height = 3;
+float angle = 0, look_x, look_z = -1, eye_x, eye_z, height = 2.5;
 int turnDirection = 0;
 int moveDirection = 0;
 int speedUp = 1;
 int fly = 0;
 float headBounce = 0;
+float heightChange = 0.1;
 
 void special(int key, int x, int y) {
 	if (key == GLUT_KEY_LEFT) turnDirection = -1;
@@ -27,6 +28,9 @@ void special(int key, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
 	if (key == ' ') {
 		fly = 1;
+	}
+	if (key == 'q') {
+		
 	}
 }
 
@@ -93,7 +97,7 @@ void alienHead() {
         
         glPushMatrix();
         glColor3f( 0,0,0);
-        glTranslatef(i*0.4, 0.5, 0.75);
+        glTranslatef(i*0.4, 0.5, 0.7);
         glutSolidSphere(0.1, 6, 6);
         glPopMatrix();
     }
@@ -114,36 +118,30 @@ void alienHead() {
 }
 
 void drawAlien(float height) {
+
+	//head
     glPushMatrix();
     glTranslatef(0, height, 0);
     alienHead();
     glPopMatrix();
 
+	//body
     glPushMatrix();
     glTranslatef(0, 0, -1.5);
     glScalef(0.7, 1.3, 1);
-    glutSolidSphere(2, 10, 10);
+    glutSolidSphere(1.5, 20,20 );
     glPopMatrix();
+
+	//fin
+	glPushMatrix();
+	glRotatef(height*40-40, 0, 1, 0);
+	glTranslatef(0, 0, -4);
+	glScalef(0.2, 2, 2);
+	glutSolidCone(1, 1, 8, 6);
+	glPopMatrix();
+
+
 }
-
-
-
-void clockTimer(int value)
-{
-	float heightChange = 0.1;
-	if (headBounce >= 1)
-	{
-		heightChange = -0.1;
-	} 
-	else if (headBounce <= -1)
-	{
-		heightChange = 0.1;
-	}
-	headBounce += heightChange;
-	glutPostRedisplay();
-	glutTimerFunc(50, clockTimer, 0);
-}
-
 
 void drawFloor() {
 	bool flag = false;
@@ -162,6 +160,23 @@ void drawFloor() {
 		}
 	}
 	glEnd();
+}
+
+//boilerplate funcs ------------------------------------------------------------------
+
+void clockTimer(int value)
+{
+	if (headBounce > 1.2)
+	{
+		heightChange = -0.05;
+	} 
+	else if (headBounce < 0.9)
+	{
+		heightChange = 0.05;
+	}
+	headBounce += heightChange;
+	glutPostRedisplay();
+	glutTimerFunc(50, clockTimer, 0);
 }
 
 void display() {
@@ -210,7 +225,7 @@ int main(int argc, char** argv) {
 	glutCreateWindow("Super Duper Alien Theme Park!");
 	initialise();
 	
-	//glutTimerFunc(50,clockTimer,0);
+	glutTimerFunc(50,clockTimer,0);
 	glutDisplayFunc(display);
 
 	//handle movement controls
@@ -218,5 +233,6 @@ int main(int argc, char** argv) {
 	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialFunc(special); 
 	glutSpecialUpFunc(normal);
+	glutMainLoop();
 	return 0;
 }
