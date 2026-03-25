@@ -53,7 +53,7 @@ void special(int key, int x, int y) {
     moveDirection = 1;
 
   if (key == GLUT_KEY_CTRL_L || key == GLUT_KEY_CTRL_R)
-    speedUp = 10;
+    speedUp = 4;
 
   if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R)
     fly = -1;
@@ -86,9 +86,9 @@ void normal(int key, int x, int y) {
 
 void moveCamera() {
   if (turnDirection == -1) {
-    angle -= 0.06;
+    angle -= 0.04;
   } else if (turnDirection == 1) {
-    angle += 0.06;
+    angle += 0.04;
   }
   if (moveDirection == 1) {
     eye_x += speedUp * 0.2 * sin(angle);
