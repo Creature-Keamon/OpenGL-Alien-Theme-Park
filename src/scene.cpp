@@ -6,6 +6,8 @@
 #include <GL/gl.h>
 #include <cmath>
 
+float aspectRequired = 1.777777778;
+
 // objects to draw-------------------------------------------------------------
 
 void drawFloor() {
@@ -84,9 +86,9 @@ void normal(int key, int x, int y) {
 
 void moveCamera() {
   if (turnDirection == -1) {
-    angle -= 0.02;
+    angle -= 0.06;
   } else if (turnDirection == 1) {
-    angle += 0.02;
+    angle += 0.06;
   }
   if (moveDirection == 1) {
     eye_x += speedUp * 0.2 * sin(angle);
@@ -120,6 +122,14 @@ void clockTimer(int value) {
   glutTimerFunc(50, clockTimer, 0);
 }
 
+void reshape(int width, int height) {
+  float aspectCurrent = (float)width / (float)height;
+  if (aspectCurrent > aspectRequired)
+    glViewport(0, 0, height * aspectRequired, height);
+  else
+    glViewport(0, 0, width, width / aspectRequired);
+}
+
 void display() {
   glPolygonMode(GL_FRONT_AND_BACK,
                 GL_FILL); // GL_LINE = Wireframe;   GL_FILL = Solid
@@ -140,9 +150,14 @@ void display() {
   glLightfv(GL_LIGHT1, GL_POSITION, lpos); // set light position
   moveCamera();
   drawFloor();
+  //------
   glPushMatrix();
   glTranslatef(0, 2, 0);
   drawAlien(headBounce);
+  glPopMatrix();
+  //------
+  glPushMatrix();
+  glTranslatef(10, 7, -10);
   PeopleSpinner();
   glPopMatrix();
   glutSwapBuffers();
@@ -174,6 +189,7 @@ int main(int argc, char **argv) {
   glutKeyboardUpFunc(keyboardUp);
   glutSpecialFunc(special);
   glutSpecialUpFunc(normal);
+  glutReshapeFunc(reshape);
   glutMainLoop();
   return 0;
 }
