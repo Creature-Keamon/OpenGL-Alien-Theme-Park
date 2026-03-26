@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8...3.5)
 
 project(COSC363_Assignment-1)
 
-add_executable(scene.out src/scene.cpp src/alien.cpp src/peopleSpinner.cpp)
+add_executable(scene.out src/scene.cpp)
 
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)

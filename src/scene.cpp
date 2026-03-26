@@ -1,5 +1,7 @@
 #include "alien.h"
+#include "environment.h"
 #include "loadBMP.h"
+#include "movement.h"
 #include "peopleSpinner.h"
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
@@ -9,29 +11,25 @@
 #include <cmath>
 
 float aspectRequired = 1.777777778;
-bool wireframe = false;
+float purple[] = {1, 1, 1, 1};
 
-// objects to draw-------------------------------------------------------------
+GLUquadricObj *q;
+GLuint texId[3];
 
-void drawFloor() {
-  bool flag = false;
+void loadTexture() {
+  glGenTextures(3, texId);
 
-  glBegin(GL_QUADS);
-  glNormal3f(0, 1, 0);
-  for (int x = -400; x <= 400; x += 20) {
-    for (int z = -400; z <= 400; z += 20) {
-      if (flag)
-        glColor3f(0.6, 1.0, 0.8);
-      else
-        glColor3f(0.8, 1.0, 0.6);
-      glVertex3f(x, 0, z);
-      glVertex3f(x, 0, z + 20);
-      glVertex3f(x + 20, 0, z + 20);
-      glVertex3f(x + 20, 0, z);
-      flag = !flag;
-    }
-  }
-  glEnd();
+  glBindTexture(GL_TEXTURE_2D, texId[0]);
+  loadBMP("../assets/skyboxTex.bmp");
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glBindTexture(GL_TEXTURE_2D, texId[1]);
+  loadBMP("../assets/gravelRoad.bmp");
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 // alien move ----------------------------------------------------------------
@@ -43,106 +41,7 @@ void HungryAlien() {
   glPopMatrix();
 }
 
-// movement funcs-------------------------------------------------------------
-
-float angle = 0, look_x, look_z = -1, eye_x, eye_z, height = 2.5;
-int turnDirection = 0;
-int moveDirection = 0;
-int speedUp = 1;
-int fly = 0;
-float headBounce = 0;
-float heightChange = 0.1;
-float bounce = 0;
-GLuint texId[1];
-GLUquadricObj *q;
-
-void special(int key, int x, int y) {
-  if (key == GLUT_KEY_LEFT)
-    turnDirection = -1;
-  else if (key == GLUT_KEY_RIGHT)
-    turnDirection = 1;
-
-  if (key == GLUT_KEY_DOWN)
-    moveDirection = -1;
-  else if (key == GLUT_KEY_UP)
-    moveDirection = 1;
-
-  if (key == GLUT_KEY_CTRL_L || key == GLUT_KEY_CTRL_R)
-    speedUp = 4;
-
-  if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R)
-    fly = -1;
-}
-
-void keyboard(unsigned char key, int x, int y) {
-  if (key == ' ') {
-    fly = 1;
-  }
-  if (key == 'q') {
-    wireframe = !wireframe;
-  }
-}
-
-void keyboardUp(unsigned char key, int x, int y) {
-  if (key == ' ') {
-    fly = 0;
-  }
-}
-
-void normal(int key, int x, int y) {
-  if (key == GLUT_KEY_LEFT or key == GLUT_KEY_RIGHT)
-    turnDirection = 0;
-  if (key == GLUT_KEY_UP or key == GLUT_KEY_DOWN)
-    moveDirection = 0;
-  if (key == GLUT_KEY_CTRL_L || key == GLUT_KEY_CTRL_R)
-    speedUp = 1;
-  if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R)
-    fly = 0;
-}
-
-void moveCamera() {
-  if (turnDirection == -1) {
-    angle -= 0.04;
-  } else if (turnDirection == 1) {
-    angle += 0.04;
-  }
-  if (moveDirection == 1) {
-    eye_x += speedUp * 0.2 * sin(angle);
-    eye_z -= speedUp * 0.2 * cos(angle);
-  } else if (moveDirection == -1) {
-    eye_x -= speedUp * 0.2 * sin(angle);
-    eye_z += speedUp * 0.2 * cos(angle);
-  }
-  if (fly == 1) {
-    height += speedUp * 0.5;
-  } else if (fly == -1) {
-    height -= speedUp * 0.5;
-  }
-
-  look_x = eye_x + 100 * sin(angle);
-  look_z = eye_z - 100 * cos(angle);
-  glutPostRedisplay();
-}
-
-// boilerplate funcs
-// ------------------------------------------------------------------
-
-void loadTexture() {
-  glGenTextures(1, texId);
-  glBindTexture(GL_TEXTURE_2D, texId[0]);
-  loadBMP("../skyboxTex.bmp");
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR); // Set texture parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-void SkyBox() {
-  glBindTexture(GL_TEXTURE_2D, texId[0]);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glPushMatrix();
-  gluSphere(q, 500, 36, 36);
-  glPopMatrix();
-}
+// boilerplate funcs ---------------------------------------------------------
 
 void clockTimer(int value) {
   if (headBounce > 1.2) {
@@ -178,17 +77,17 @@ void display() {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  float spotDir[] = {look_x, height - 70, look_z};
+  float spotPosn[] = {eye_x, height + 5, eye_z, 1};
   gluLookAt(eye_x, height, eye_z, look_x, height, look_z, 0., 1., 0.);
-
-  float lpos[4] = {0, 1, 0, 1.}; // light's position
-  float dir[3] = {0, 0, 0};
-  glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 200);
+  glLightfv(GL_LIGHT1, GL_POSITION, spotPosn);
+  glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 35);
   glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2);
-  glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, dir);
-  glLightfv(GL_LIGHT1, GL_POSITION, lpos); // set light position
+  glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDir);
+
   moveCamera();
-  drawFloor();
-  SkyBox();
+  drawFloor(texId);
+  skyBox(texId, q);
   //------
   glPushMatrix();
   glTranslatef(0, 2, 0);
@@ -205,27 +104,34 @@ void display() {
 
 void initialise() {
   q = gluNewQuadric();
+  glEnable(GL_TEXTURE_2D);
   loadTexture();
-  glutInitWindowSize(1280, 720);
-  glutInitWindowPosition(10, 10);
-  glutCreateWindow("Super Duper Alien Theme Park!");
+
   glClearColor(0., 1., 1., 1.); // Background colour
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, 0);
+  glEnable(GL_LIGHTING); // Enable OpenGL states
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  glEnable(GL_LIGHTING); // Enable OpenGL states
   glEnable(GL_COLOR_MATERIAL);
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, purple);
+  glLightfv(GL_LIGHT1, GL_SPECULAR, purple);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_NORMALIZE);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
 
   gluQuadricDrawStyle(q, GL_FILL);
   gluQuadricNormals(q, GLU_SMOOTH);
-  glEnable(GL_TEXTURE_2D);
   gluQuadricTexture(q, GL_TRUE);
 }
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+  glutInitWindowSize(1280, 720);
+  glutInitWindowPosition(10, 10);
+  glutCreateWindow("Super Duper Alien Theme Park!");
   initialise();
 
   glutTimerFunc(50, clockTimer, 0);
