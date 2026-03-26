@@ -7,11 +7,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-void drawFloor(GLuint *texId) {
+void DrawFloor(GLuint *texId) {
   glBindTexture(GL_TEXTURE_2D, texId[1]);
   glColor3f(1, 1, 1);
   glNormal3f(0, 1, 0);
-  glBegin(GL_QUADS); // A single quad
+  glBegin(GL_QUADS);
   for (float x = -50; x <= 50; x += 0.5) {
     for (float z = -50; z <= 50; z += 0.5) {
       glTexCoord2f(0, 0);
@@ -27,7 +27,7 @@ void drawFloor(GLuint *texId) {
   glEnd();
 }
 
-void skyBox(GLuint *texId, GLUquadricObj *q) {
+void DrawSkybox(GLuint *texId, GLUquadricObj *q) {
   glBegin(GL_QUADS);
   glColor3f(1, 1, 1);
   glEnd();

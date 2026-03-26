@@ -86,8 +86,8 @@ void display() {
   glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDir);
 
   moveCamera();
-  drawFloor(texId);
-  skyBox(texId, q);
+  DrawFloor(texId);
+  DrawSkybox(texId, q);
   //------
   glPushMatrix();
   glTranslatef(0, 2, 0);
@@ -97,8 +97,19 @@ void display() {
   //------
   glPushMatrix();
   glTranslatef(10, 7, -10);
-  PeopleSpinner();
+  DrawPeopleSpinner();
   glPopMatrix();
+  //------
+  glPushMatrix();
+  glTranslatef(8, 0, -5);
+  DrawRamp();
+  glPopMatrix();
+  //------
+  glPushMatrix();
+  glTranslatef(8, 0, -15);
+  DrawRamp();
+  glPopMatrix();
+
   glutSwapBuffers();
 }
 
