@@ -1,12 +1,15 @@
 #include "alien.h"
+#include "loadBMP.h"
 #include "peopleSpinner.h"
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include <cmath>
 
 float aspectRequired = 1.777777778;
+bool wireframe = false;
 
 // objects to draw-------------------------------------------------------------
 
@@ -31,6 +34,15 @@ void drawFloor() {
   glEnd();
 }
 
+// alien move ----------------------------------------------------------------
+
+void HungryAlien() {
+  glPushMatrix();
+  glTranslatef(0, 0, 0);
+  drawAlien(1);
+  glPopMatrix();
+}
+
 // movement funcs-------------------------------------------------------------
 
 float angle = 0, look_x, look_z = -1, eye_x, eye_z, height = 2.5;
@@ -40,6 +52,9 @@ int speedUp = 1;
 int fly = 0;
 float headBounce = 0;
 float heightChange = 0.1;
+float bounce = 0;
+GLuint texId[1];
+GLUquadricObj *q;
 
 void special(int key, int x, int y) {
   if (key == GLUT_KEY_LEFT)
@@ -64,6 +79,7 @@ void keyboard(unsigned char key, int x, int y) {
     fly = 1;
   }
   if (key == 'q') {
+    wireframe = !wireframe;
   }
 }
 
@@ -111,13 +127,31 @@ void moveCamera() {
 // boilerplate funcs
 // ------------------------------------------------------------------
 
+void loadTexture() {
+  glGenTextures(1, texId);
+  glBindTexture(GL_TEXTURE_2D, texId[0]);
+  loadBMP("../skyboxTex.bmp");
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR); // Set texture parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+void SkyBox() {
+  glBindTexture(GL_TEXTURE_2D, texId[0]);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glPushMatrix();
+  gluSphere(q, 500, 36, 36);
+  glPopMatrix();
+}
+
 void clockTimer(int value) {
   if (headBounce > 1.2) {
     heightChange = -0.05;
-  } else if (headBounce < 0.9) {
+  } else if (headBounce < -1.2) {
     heightChange = 0.05;
   }
   headBounce += heightChange;
+  bounce = (fabs(sinf(headBounce)) * 0.8) + 0.5;
   glutPostRedisplay();
   glutTimerFunc(50, clockTimer, 0);
 }
@@ -131,8 +165,12 @@ void reshape(int width, int height) {
 }
 
 void display() {
-  glPolygonMode(GL_FRONT_AND_BACK,
-                GL_FILL); // GL_LINE = Wireframe;   GL_FILL = Solid
+  if (!wireframe) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  } else {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -150,11 +188,13 @@ void display() {
   glLightfv(GL_LIGHT1, GL_POSITION, lpos); // set light position
   moveCamera();
   drawFloor();
+  SkyBox();
   //------
   glPushMatrix();
   glTranslatef(0, 2, 0);
-  drawAlien(headBounce);
+  drawAlien(bounce);
   glPopMatrix();
+  HungryAlien();
   //------
   glPushMatrix();
   glTranslatef(10, 7, -10);
@@ -164,6 +204,8 @@ void display() {
 }
 
 void initialise() {
+  q = gluNewQuadric();
+  loadTexture();
   glutInitWindowSize(1280, 720);
   glutInitWindowPosition(10, 10);
   glutCreateWindow("Super Duper Alien Theme Park!");
@@ -174,6 +216,11 @@ void initialise() {
   glEnable(GL_COLOR_MATERIAL);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_NORMALIZE);
+
+  gluQuadricDrawStyle(q, GL_FILL);
+  gluQuadricNormals(q, GLU_SMOOTH);
+  glEnable(GL_TEXTURE_2D);
+  gluQuadricTexture(q, GL_TRUE);
 }
 
 int main(int argc, char **argv) {
