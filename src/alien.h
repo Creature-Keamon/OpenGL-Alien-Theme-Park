@@ -72,4 +72,11 @@ void drawAlien(float height) {
   glPopMatrix();
 }
 
+void HungryAlien(float bounce) {
+  glPushMatrix();
+  glTranslatef(0, 0, 0);
+  drawAlien(bounce);
+  glPopMatrix();
+}
+
 #endif

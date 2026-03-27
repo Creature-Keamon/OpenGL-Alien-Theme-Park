@@ -32,15 +32,6 @@ void loadTexture() {
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
-// alien move ----------------------------------------------------------------
-
-void HungryAlien() {
-  glPushMatrix();
-  glTranslatef(0, 0, 0);
-  drawAlien(1);
-  glPopMatrix();
-}
-
 // boilerplate funcs ---------------------------------------------------------
 
 void clockTimer(int value) {
@@ -93,7 +84,11 @@ void display() {
   glTranslatef(0, 2, 0);
   drawAlien(bounce);
   glPopMatrix();
-  HungryAlien();
+  //------
+  glPushMatrix();
+  glTranslatef(10, 2, 0);
+  HungryAlien(bounce);
+  glPopMatrix();
   //------
   glPushMatrix();
   glTranslatef(10, 7, -10);
