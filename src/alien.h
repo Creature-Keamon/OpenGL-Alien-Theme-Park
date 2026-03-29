@@ -7,6 +7,12 @@
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 
+struct pos {
+  float X;
+  float Y;
+  float Z;
+};
+
 void alienHead() {
   // teeth
   glPushMatrix();
@@ -74,7 +80,7 @@ void drawAlien(float height) {
 
 void HungryAlien(float bounce) {
   glPushMatrix();
-  glTranslatef(0, 0, 0);
+  glRotatef(180, 0, 1, 0);
   drawAlien(bounce);
   glPopMatrix();
 }

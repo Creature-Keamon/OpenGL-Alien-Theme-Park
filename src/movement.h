@@ -76,9 +76,9 @@ void moveCamera() {
     eye_z += speedUp * 0.2 * cos(angle);
   }
   if (fly == 1) {
-    height += speedUp * 0.5;
+    height += speedUp * 0.1;
   } else if (fly == -1) {
-    height -= speedUp * 0.5;
+    height -= speedUp * 0.1;
   }
 
   look_x = eye_x + 100 * sin(angle);
