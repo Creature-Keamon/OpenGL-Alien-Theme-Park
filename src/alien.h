@@ -8,14 +8,18 @@
 #include <GL/gl.h>
 
 struct pos {
-  float X;
-  float Y;
-  float Z;
+  float posX;
+  float posY;
+  float posZ;
+  float rotY;
+  int state;
 };
 
 void alienHead() {
   // teeth
   glPushMatrix();
+  glNormal3f(0, 1, 0);
+  glColor3f(1, 1, 1);
   for (int i = 0; i < 7; i++) {
     glPushMatrix();
     glTranslatef(-0.6 + (i * 0.2), 0, 0.8);
@@ -27,12 +31,14 @@ void alienHead() {
   // eyes
   for (int i = -1; i < 2; i += 2) {
     glPushMatrix();
+    glNormal3f(0, 1, 0);
     glColor3f(1, 1, 1);
     glTranslatef(i * 0.5, 0.6, 0.5);
     glutSolidSphere(0.3, 8, 8);
     glPopMatrix();
 
     glPushMatrix();
+    glNormal3f(0, 1, 0);
     glColor3f(0, 0, 0);
     glTranslatef(i * 0.4, 0.5, 0.7);
     glutSolidSphere(0.1, 6, 6);
@@ -42,6 +48,7 @@ void alienHead() {
   // jaw
   glColor3f(0, 0, 1);
   glPushMatrix();
+  glNormal3f(0, 1, 0);
   glScalef(1, 0.5, 1);
   glutSolidSphere(1, 10, 10);
   glPopMatrix();

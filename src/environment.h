@@ -27,12 +27,11 @@ void DrawFloor(GLuint *texId) {
   glEnd();
 }
 
-void DrawSkybox(GLuint *texId, GLUquadricObj *q) {
-  glBegin(GL_QUADS);
+void DrawSkybox(GLuint *texId, GLUquadricObj *q, float rot) {
   glColor3f(1, 1, 1);
-  glEnd();
   glBindTexture(GL_TEXTURE_2D, texId[0]);
   glPushMatrix();
+  glRotatef(rot, 1, 1, 1);
   glRotatef(-90, 1, 0, 0);
   gluSphere(q, 500, 36, 36);
   glPopMatrix();
