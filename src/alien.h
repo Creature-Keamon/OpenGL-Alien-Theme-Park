@@ -17,7 +17,7 @@ struct pos {
 
 void alienHead() {
   // teeth
-  glPushMatrix();
+
   glNormal3f(0, 1, 0);
   glColor3f(1, 1, 1);
   for (int i = 0; i < 7; i++) {
@@ -46,7 +46,7 @@ void alienHead() {
   }
 
   // jaw
-  glColor3f(0, 0, 1);
+  glColor3f(0, 1, 1);
   glPushMatrix();
   glNormal3f(0, 1, 0);
   glScalef(1, 0.5, 1);
@@ -57,7 +57,6 @@ void alienHead() {
   glScalef(1, 0.5, 1);
   glTranslatef(0, -2, 0);
   glutSolidSphere(1, 10, 10);
-  glPopMatrix();
   glPopMatrix();
 }
 
@@ -78,7 +77,7 @@ void drawAlien(float height) {
 
   // fin
   glPushMatrix();
-  glRotatef(height * 40 - 40, 0, 1, 0);
+  glRotatef(height * 40 - 20, 0, 1, 0);
   glTranslatef(0, 0, -4);
   glScalef(0.2, 2, 2);
   glutSolidCone(1, 1, 8, 6);

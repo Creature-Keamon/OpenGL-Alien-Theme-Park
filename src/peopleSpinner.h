@@ -64,121 +64,132 @@ void DrawPerson() {
 
 void DrawPeopleSpinner(float hoopPos) {
 
-    glNormal3f(0, 1, 0);
-    glColor3f(0.2, 0.2, 0.2);
+  glNormal3f(0, 1, 0);
+  glColor3f(0.2, 0.2, 0.2);
+  glPushMatrix();
+  glTranslatef(hoopPos, 0, 0);
+  glPushMatrix();
+  glutSolidTorus(1, 4, 8, 40);
+  glPopMatrix();
+  if (showPerson) {
     glPushMatrix();
-    glTranslatef(hoopPos, 0, 0);
-    glPushMatrix();
-    glutSolidTorus(1, 4, 8, 40);
+    glTranslatef(0, -0.3, 0);
+    DrawPerson();
     glPopMatrix();
-    if (showPerson) {
-        glPushMatrix();
-        glTranslatef(0, -0.3, 0);
-        DrawPerson();
-        glPopMatrix();
-    }
-    glPopMatrix();
+  }
+  glPopMatrix();
 }
 
 void DrawRamp() {
-    GLUquadric *q = gluNewQuadric();
-    gluQuadricDrawStyle(q, GLU_FILL);
+  GLUquadric *q = gluNewQuadric();
+  gluQuadricDrawStyle(q, GLU_FILL);
 
-    glPushMatrix();
-    glRotatef(90, 0, 1, 0);
-    glColor3f(1, 1, 1);
-    glNormal3f(0, 1, 0);
-    gluDisk(q, 0, 4, 3, 2);
-    gluCylinder(q, 4, 4, 4, 3, 2);
-    glPushMatrix();
-    glTranslatef(0, 0, 4);
-    gluDisk(q, 0, 4, 3, 2);
-    glPopMatrix();
-    glPopMatrix();
+  glPushMatrix();
+  glRotatef(90, 0, 1, 0);
+  glColor3f(1, 1, 1);
+  glNormal3f(0, 1, 0);
+  gluDisk(q, 0, 4, 3, 2);
+  gluCylinder(q, 4, 4, 4, 3, 2);
+  glPushMatrix();
+  glTranslatef(0, 0, 4);
+  gluDisk(q, 0, 4, 3, 2);
+  glPopMatrix();
+  glPopMatrix();
 }
 
 void DrawRefresher(GLuint *texId) {
-    glPushMatrix();
-    glBindTexture(GL_TEXTURE_2D, texId[2]);
-    glNormal3f(0, 1, 0);
-    glColor3f(1, 1, 1);
-    
-    //back side
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 0, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(10, 0, 0);
-    glTexCoord2f(1, 1);
-    glVertex3f(10, 15, 0);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 15, 0);
-    glEnd();
-    
-    // end
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(10, 0, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(10, 0, 8);
-    glTexCoord2f(1, 1);
-    glVertex3f(10, 15, 8);
-    glTexCoord2f(0, 1);
-    glVertex3f(10, 15, 0);
-    glEnd();
-    
-    //front side
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 0, 8);
-    glTexCoord2f(1, 0);
-    glVertex3f(10, 0, 8);
-    glTexCoord2f(1, 1);
-    glVertex3f(10, 15, 8);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 15, 8);
-    glEnd();
+  glPushMatrix();
+  glBindTexture(GL_TEXTURE_2D, texId[2]);
+  glNormal3f(0, 1, 0);
+  glColor3f(1, 1, 1);
 
-    //top 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 15, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(10, 15, 0);
-    glTexCoord2f(1, 1);
-    glVertex3f(10, 15, 8);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 15, 8);
-    glEnd();
+  // back side
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(0, 0, 0);
+  glTexCoord2f(1, 0);
+  glVertex3f(10, 0, 0);
+  glTexCoord2f(1, 1);
+  glVertex3f(10, 15, 0);
+  glTexCoord2f(0, 1);
+  glVertex3f(0, 15, 0);
+  glEnd();
 
-    //bottom 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 0, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(10, 0, 0);
-    glTexCoord2f(1, 1);
-    glVertex3f(10, 0, 8);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 0, 8);
-    glEnd();
+  // end
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(10, 0, 0);
+  glTexCoord2f(1, 0);
+  glVertex3f(10, 0, 8);
+  glTexCoord2f(1, 1);
+  glVertex3f(10, 15, 8);
+  glTexCoord2f(0, 1);
+  glVertex3f(10, 15, 0);
+  glEnd();
 
-    // end
-    glColor3f(0, 0, 0);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 0, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(0, 0, 8);
-    glTexCoord2f(1, 1);
-    glVertex3f(0, 15, 8);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 15, 0);
-    glEnd();
+  // front side
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(0, 0, 8);
+  glTexCoord2f(1, 0);
+  glVertex3f(10, 0, 8);
+  glTexCoord2f(1, 1);
+  glVertex3f(10, 15, 8);
+  glTexCoord2f(0, 1);
+  glVertex3f(0, 15, 8);
+  glEnd();
 
-    glPopMatrix();
+  // top
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(0, 15, 0);
+  glTexCoord2f(1, 0);
+  glVertex3f(10, 15, 0);
+  glTexCoord2f(1, 1);
+  glVertex3f(10, 15, 8);
+  glTexCoord2f(0, 1);
+  glVertex3f(0, 15, 8);
+  glEnd();
 
+  // bottom
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(0, 0, 0);
+  glTexCoord2f(1, 0);
+  glVertex3f(10, 0, 0);
+  glTexCoord2f(1, 1);
+  glVertex3f(10, 0, 8);
+  glTexCoord2f(0, 1);
+  glVertex3f(0, 0, 8);
+  glEnd();
 
+  // end
+  glColor3f(0, 0, 0);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0);
+  glVertex3f(0, 0, 0);
+  glTexCoord2f(1, 0);
+  glVertex3f(0, 0, 8);
+  glTexCoord2f(1, 1);
+  glVertex3f(0, 15, 8);
+  glTexCoord2f(0, 1);
+  glVertex3f(0, 15, 0);
+  glEnd();
+
+  glColor3f(0.2, 0.6, 0.5);
+  glPushMatrix();
+  glScalef(10, 1, 1);
+  glTranslatef(0, 12, 5);
+  glutSolidCube(2);
+  glPopMatrix();
+
+  glPushMatrix();
+  glScalef(10, 1, 1);
+  glTranslatef(0, 2, 5);
+  glutSolidCube(2);
+  glPopMatrix();
+
+  glPopMatrix();
 }
 
 void DrawRide(GLuint *texId, float hoopPos) {

@@ -37,4 +37,19 @@ void DrawSkybox(GLuint *texId, GLUquadricObj *q, float rot) {
   glPopMatrix();
 }
 
+void DrawLighting(GLUquadricObj *q) {
+  glColor3f(0.3, 0.3, 0.3);
+  glPushMatrix();
+  glTranslatef(0, 1, 0);
+  glScalef(2, 1, 1);
+  glutSolidCube(1);
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(1, 1, 0);
+  glRotatef(90, 0, 1, 0);
+  gluCylinder(q, 0.3, 0.3, 0.8, 10, 10);
+  glPopMatrix();
+}
+
 #endif

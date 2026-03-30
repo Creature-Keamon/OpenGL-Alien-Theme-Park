@@ -1,4 +1,5 @@
 #include "alien.h"
+// #include "blood.h"
 #include "environment.h"
 #include "loadBMP.h"
 #include "movement.h"
@@ -12,20 +13,16 @@
 
 float aspectRequired = 1.777777778;
 float white[] = {1, 1, 1, 1};
-
-float light[] = {10, 10, -11, 1};
-float dir[] = {0, -2, 0};
 float rot = 0;
 
 float hoopPos = 0;
 float hoopMove = 1;
 
 GLUquadricObj *q;
-GLuint texId[3];
+GLuint texId[4];
 
-pos hoopyAliens[3] = {{10,2,0,0, 0},
-                      {0,2,-22,180, 2},
-                      {10,2,-22,0, 1}};
+pos hoopyAliens[3] = {
+    {10, 2, 0, 0, 0}, {0, 2, -22, 180, 2}, {10, 2, -22, 0, 1}};
 
 void loadTexture() {
   glGenTextures(3, texId);
@@ -45,6 +42,11 @@ void loadTexture() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+  glBindTexture(GL_TEXTURE_2D, texId[3]);
+  loadBMP("../assets/Glow.bmp");
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
@@ -54,42 +56,47 @@ void loadTexture() {
 void MoveAliens() {
   int counter = 0; //
 
-  for (int i = 0; i < 3; i ++) {
+  for (int i = 0; i < 3; i++) {
 
     // allows aliens to jump through the hoop
-    if (hoopyAliens[i].posZ > -22 && hoopyAliens[i].posX == 10 && hoopyAliens[i].rotY == 0) {
-        hoopyAliens[i].state = 0;
-        hoopyAliens[i].posZ -=0.4;
-        hoopyAliens[i].posY = fabs(6 * sinf(hoopyAliens[i].posZ/7)) + 2;
+    if (hoopyAliens[i].posZ > -22 && hoopyAliens[i].posX == 10 &&
+        hoopyAliens[i].rotY == 0) {
+      hoopyAliens[i].state = 0;
+      hoopyAliens[i].posZ -= 0.4;
+      hoopyAliens[i].posY = fabs(6 * sinf(hoopyAliens[i].posZ / 7)) + 2;
 
-        //comparing within a range is a precaution to try eliminate potential floating point errors
-        if (hoopyAliens[i].posZ > -12 && hoopyAliens[i].posZ < -10) {
-            showPerson = false;
-        }
-        if (hoopyAliens[i].posZ > -15 && hoopyAliens[i].posZ < -13) {
-            refresh = true;
-        }
+      // comparing within a range is a precaution to try eliminate potential
+      // floating point errors
+      if (hoopyAliens[i].posZ > -12 && hoopyAliens[i].posZ < -10) {
+        showPerson = false;
+        // for (int i = 0; i < 30; i++) {
+        // newParticle();
+        //}
+      }
+      if (hoopyAliens[i].posZ > -15 && hoopyAliens[i].posZ < -13) {
+        refresh = true;
+      }
     }
 
-    //turns aliens after their jump
-    else if (hoopyAliens[i].rotY < 180){
+    // turns aliens after their jump
+    else if (hoopyAliens[i].rotY < 180) {
       hoopyAliens[i].state = 1;
       hoopyAliens[i].rotY += 4;
-    } 
+    }
 
-    //moves aliens back to the start
-    else if (hoopyAliens[i].rotY >=180 && hoopyAliens[i].posZ < 0) {
+    // moves aliens back to the start
+    else if (hoopyAliens[i].rotY >= 180 && hoopyAliens[i].posZ < 0) {
       hoopyAliens[i].rotY = 180;
       hoopyAliens[i].state = 2;
       hoopyAliens[i].posZ += 0.5;
     }
 
-    //turns aliens to face the hoop
+    // turns aliens to face the hoop
     else {
       hoopyAliens[i].state = 3;
       hoopyAliens[i].rotY += 4;
 
-      //resets alien locations back to their originals 
+      // resets alien locations back to their originals
       if (hoopyAliens[i].rotY == 360) {
         hoopyAliens[i].rotY = 0;
         hoopyAliens[i].posX = 10;
@@ -100,39 +107,42 @@ void MoveAliens() {
 }
 
 void clockTimer(int value) {
+  // calculates head bounce and fin wag
   if (headBounce > 1.2) {
     heightChange = -0.05;
-  } 
-  else if (headBounce < -1.2) {
+  } else if (headBounce < -1.2) {
     heightChange = 0.05;
   }
+  headBounce += heightChange;
+  bounce = ((sinf(headBounce)) * 0.5) + 0.5;
+
+  // performs jank movement around the track
   MoveAliens();
 
+  // rotates skybox
   rot = rot + 0.1;
-  if (rot >= 360 ) {
+  if (rot >= 360) {
     rot = 0;
   }
 
+  // resets the hoop with a new victim
   if (refresh) {
     hoopPos += hoopMove;
     if (hoopPos >= 11) {
-        hoopMove = -1;
-        showPerson = true;
+      hoopMove = -1;
+      showPerson = true;
+    } else if (hoopPos <= 0) {
+      refresh = false;
+      hoopMove = 1;
     }
-    else if (hoopPos <= 0) {
-        refresh = false;
-        hoopMove = 1;
-    }
-
   }
-  
-  headBounce += heightChange;
-  bounce = (fabs(sinf(headBounce)) * 0.8) + 0.5;
-  
-  
+
+  // updates particles if any exist
+  // updateQueue();
+  // tick++;
+
   glutPostRedisplay();
   glutTimerFunc(25, clockTimer, 0);
-  
 }
 
 // boilerplate functions ----------------------------------------------------
@@ -160,69 +170,79 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  //glLightfv(GL_LIGHT0, GL_POSITION, light);
-  
+  // glLightfv(GL_LIGHT0, GL_POSITION, light);
+
   float spotDir[] = {look_x, height - 70, look_z};
   float spotPosn[] = {eye_x, height + 5, eye_z, 1};
+
   gluLookAt(eye_x, height, eye_z, look_x, height, look_z, 0., 1., 0.);
   glLightfv(GL_LIGHT1, GL_POSITION, spotPosn);
   glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 35);
   glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2);
   glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDir);
 
-  glLightfv(GL_LIGHT2, GL_POSITION, light);
-  glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 100);
-  glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 3);
-  glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, dir);
-
   moveCamera();
   DrawFloor(texId);
   DrawSkybox(texId, q, rot);
   //------
-  //glPushMatrix();
-  //glTranslatef(0, 2, 0);
-  //drawAlien(bounce);
-  //glPopMatrix();
-  
+
+  for (int i = 0; i < 4; i++) {
+    glPushMatrix();
+    glTranslatef(-4, 2, (i - 5) * 5);
+    glRotatef(90, 0, 1, 0);
+    drawAlien(bounce);
+    glPopMatrix();
+  }
+
   // drawing aliens (crudely)------
-  for (int i = 0; i < 3; i ++) {
+  for (int i = 0; i < 3; i++) {
     pos hoopyAlien = hoopyAliens[i];
     if (hoopyAlien.state == 0) {
       glPushMatrix();
       glTranslatef(hoopyAlien.posX, hoopyAlien.posY, hoopyAlien.posZ);
       HungryAlien(bounce);
       glPopMatrix();
-    } 
-    else if (hoopyAlien.state == 1){
+    } else if (hoopyAlien.state == 1) {
       glPushMatrix();
       glTranslatef(5, hoopyAlien.posY, -22);
-      glRotatef(hoopyAlien.rotY,0, 1, 0);
+      glRotatef(hoopyAlien.rotY, 0, 1, 0);
       glTranslatef(5, 0, 0);
       HungryAlien(bounce);
       glPopMatrix();
-    } 
-    else if (hoopyAlien.state == 2) {
+    } else if (hoopyAlien.state == 2) {
       glPushMatrix();
-      glTranslatef(0, hoopyAlien.posY,  hoopyAlien.posZ);
+      glTranslatef(0, hoopyAlien.posY, hoopyAlien.posZ);
       glRotatef(hoopyAlien.rotY, 0, 1, 0);
       HungryAlien(bounce);
       glPopMatrix();
-    }
-    else if (hoopyAlien.state == 3){
+    } else if (hoopyAlien.state == 3) {
       glPushMatrix();
       glTranslatef(5, hoopyAlien.posY, 0);
-      glRotatef(hoopyAlien.rotY,0, 1, 0);
+      glRotatef(hoopyAlien.rotY, 0, 1, 0);
       glTranslatef(5, 0, 0);
       HungryAlien(bounce);
       glPopMatrix();
-    } 
-  }  
+    }
+  }
   glColor3f(1, 1, 1);
   DrawRide(texId, hoopPos);
+
+  float light[] = {0, 10, -10, 1};
+  float dir[] = {1, 1, 3};
+  glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 1000000000);
+  glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 1);
+  glLightfv(GL_LIGHT2, GL_POSITION, light);
+  glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, dir);
+
+  glPushMatrix();
+  glTranslatef(3.5, 12, -10);
+  glRotatef(20, 0, 0, -1);
+  glRotatef(-90, 0, 0, 1);
+  DrawLighting(q);
+  glPopMatrix();
+
   glutSwapBuffers();
 }
-
-
 
 void initialise() {
   q = gluNewQuadric();
@@ -230,6 +250,7 @@ void initialise() {
   loadTexture();
 
   glClearColor(0., 1., 1., 1.); // Background colour
+  glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GREATER, 0);
   glEnable(GL_LIGHTING); // Enable OpenGL states
@@ -250,8 +271,6 @@ void initialise() {
   gluQuadricNormals(q, GLU_SMOOTH);
   gluQuadricTexture(q, GL_TRUE);
 }
-
-
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
